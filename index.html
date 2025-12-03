@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>New Year TikTok Gifts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            overflow: hidden;
+            touch-action: manipulation;
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at center bottom, #1e293b 0%, #000000 100%);
+        }
+
+        /* Контейнер для ялинки (фон) */
+        #tree-container {
+            position: absolute;
+            top: 2%; left: 0; width: 100%; height: 80%;
+            background-image: url('https://i.postimg.cc/hvRhBgWD/pngwing-com-(18).png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center top;
+            z-index: 5;
+            transform-origin: center bottom;
+            transition: transform 0.1s ease-out;
+            filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
+        }
+
+        /* Анімація трясіння */
+        @keyframes shake-animation {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(2deg); }
+            50% { transform: rotate(-2deg); }
+            75% { transform: rotate(1deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .is-shaking {
+            animation: shake-animation 0.3s ease-in-out infinite;
+        }
+
+        /* Подарунки, що висять на ялинці */
+        .hanging-gift {
+            position: absolute;
+            z-index: 10;
+            width: 100px;
+            height: 100px;
+            animation: swing 2s ease-in-out infinite alternate;
+            transform-origin: top center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.4));
+            transition: transform 0.3s;
+        }
+        @keyframes swing {
+            from { transform: translateX(-50%) rotate(-3deg); }
+            to { transform: translateX(-50%) rotate(3deg); }
+        }
+
+        /* Стилі для подарунка, що падає */
+        .falling-gift {
+            pointer-events: none;
+            animation: none !important;
+        }
+        
+        /* Коробка для подарунків */
+        #gift-box {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            height: 220px;
+            z-index: 20;
+            background: url('https://i.postimg.cc/cLdWNCK6/pngwing-com-(19).png') no-repeat center bottom/contain;
+            filter: drop-shadow(0 0 30px rgba(255, 0, 0, 0.2));
+        }
+
+        /* Сніг */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 1em;
+            z-index: 1;
+            animation: fall linear infinite;
+            pointer-events: none;
+        }
+        @keyframes fall { to { transform: translateY(110vh); } }
+
+        /* Оверлеї */
+        .overlay-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* Анімація заголовка */
+        @keyframes title-pulse {
+            0%, 100% { 
+                text-shadow: 3px 3px 0px #ff0050, -3px -3px 0px #00f2ea; 
+                transform: scale(1); 
+            }
+            50% { 
+                text-shadow: 5px 5px 0px #ff0050, -5px -5px 0px #00f2ea; 
+                transform: scale(1.05); 
+            }
+        }
+
+        .main-title {
+            text-shadow: 2px 2px 0px #ff0050, -2px -2px 0px #00f2ea;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            letter-spacing: 1px;
+            line-height: 1.2;
+            animation: title-pulse 2s infinite ease-in-out;
+        }
+
+        #tiktok-input {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #00f2ea;
+            color: white;
+            font-weight: bold;
+        }
+        #tiktok-input::placeholder { color: rgba(255,255,255,0.5); }
+
+        .success-message {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: popIn 0.5s ease-out;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen relative text-white cursor-pointer select-none" id="main-body">
+
+    <!-- Оверлей для запуску -->
+    <div id="start-overlay" class="overlay-screen">
+        <h1 class="text-5xl font-black mb-6 text-white main-title">NEW YEAR<br>TIKTOK GIFTS</h1>
+        <p class="mb-12 text-lg text-gray-200 font-medium max-w-xs leading-relaxed">
+            Tap button & SHAKE your phone to collect all gifts! 🎄🎁
+        </p>
+        <button id="start-btn" class="bg-white text-black font-black py-4 px-12 rounded-full text-2xl shadow-[0_0_25px_rgba(0,242,234,0.6)] transform transition hover:scale-105 active:scale-95 border-none">
+            START GAME
+        </button>
+    </div>
+
+    <!-- Фінальний оверлей -->
+    <div id="final-screen" class="overlay-screen hidden">
+        <div id="input-container" class="flex flex-col items-center w-full max-w-sm">
+            <h2 class="text-3xl font-bold mb-6 text-yellow-300">Box is Full!</h2>
+            <p class="mb-4 text-gray-200">Enter your TikTok username to claim:</p>
+            <input type="text" id="tiktok-input" placeholder="@username" class="w-full px-6 py-4 rounded-full text-xl mb-6 text-center focus:outline-none focus:shadow-[0_0_15px_rgba(255,0,80,0.8)]">
+            <button id="claim-btn" class="bg-gradient-to-r from-[#00f2ea] to-[#ff0050] text-white font-black py-4 px-10 rounded-full text-xl shadow-lg transform transition hover:scale-105 active:scale-95 w-full">
+                COLLECT
+            </button>
+        </div>
+
+        <div id="success-container" class="success-message">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-green-400 mb-6 filter drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <h2 class="text-4xl font-black mb-2 text-white">SUCCESS!</h2>
+            <p class="text-xl text-gray-200">Happy New Year & TikTok Trends!</p>
+        </div>
+    </div>
+
+    <!-- Контейнер для снігу -->
+    <div id="snow-container"></div>
+
+    <!-- Заголовок зверху -->
+    <div class="absolute top-0 left-0 w-full z-20 pt-10 pb-4 text-center bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+        <h1 class="text-2xl md:text-4xl font-black text-white main-title drop-shadow-xl tracking-wider">TIKTOK GIFTS</h1>
+        <div id="status-text" class="mt-3 animate-pulse">
+            <span class="text-black text-sm font-bold bg-white/90 px-6 py-2 rounded-full shadow-lg uppercase tracking-widest">
+                Shake to Drop Gifts! 📲
+            </span>
+        </div>
+    </div>
+
+    <!-- Ялинка (Фон) -->
+    <div id="tree-container"></div>
+
+    <!-- Коробка внизу -->
+    <div id="gift-box"></div>
+
+    <script>
+        // --- СПИСОК ПОДАРУНКІВ ---
+        const giftsData = [
+            { name: "Adam’s Dream", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/9a586391fbb1e21621c4203e5563a9e0~tplv-obj.webp" },
+            { name: "Flame Towers", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/resource/7e76f2366a3124b2f65d3903854dadb7.png~tplv-obj.webp" },
+            { name: "TikTok Stars", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/b1667c891ed39fd68ba7252fff7a1e7c~tplv-obj.webp" },
+            { name: "Leon and Lion", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/a291aedacf27d22c3fd2d83575d2bee9~tplv-obj.webp" },
+            { name: "Dragon Flame", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/89b4d1d93c1cc614e3a0903ac7a94e0c~tplv-obj.webp" },
+            { name: "TikTok Universe+", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/b13105782e8bf8fbefaa83b7af413cee~tplv-obj.webp" },
+            { name: "Level Ship", url: "https://p16-webcast.tiktokcdn.com/img/alisg/webcast-sg/resource/aca72c59f99d08b0c0d1cd6cc79dbb16.png~tplv-obj.webp" },
+            { name: "Thunder Falcon", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/26f3fbcda383e6093a19b8e7351a164c~tplv-obj.webp" },
+            { name: "Future Journey", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/resource/dd615b15ed696ee886064d5415dab688.png~tplv-obj.webp" },
+            { name: "Infinite Heart", url: "https://p16-webcast.tiktokcdn.com/img/alisg/webcast-sg/resource/de31974d7a94525c6f31872b5b38f76e.png~tplv-obj.webp" },
+            { name: "Amusement Park", url: "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/resource/12ecc01c2984c5d85bb508e80103a3cb.png~tplv-obj.webp" }
+        ];
+        
+        const TOTAL_GIFTS_TO_FALL = giftsData.length;
+
+        const treeContainer = document.getElementById('tree-container');
+        const startBtn = document.getElementById('start-btn');
+        const startOverlay = document.getElementById('start-overlay');
+        const finalScreen = document.getElementById('final-screen');
+        const inputContainer = document.getElementById('input-container');
+        const successContainer = document.getElementById('success-container');
+        const claimBtn = document.getElementById('claim-btn');
+        const statusText = document.querySelector('#status-text span');
+        const mainBody = document.getElementById('main-body');
+        const giftBox = document.getElementById('gift-box');
+        
+        let isShaking = false;
+        let shakeTimeout;
+        let fallenGiftsCount = 0;
+        let isGameActive = false; // Флаг для перевірки, чи почалася гра
+        const SHAKE_THRESHOLD = 18; 
+
+        function createSnow() {
+            const snowContainer = document.getElementById('snow-container');
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = '•'; 
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = Math.random() * 5 + 3 + 's';
+                snowflake.style.fontSize = Math.random() * 15 + 10 + 'px';
+                snowflake.style.opacity = Math.random() * 0.6 + 0.2;
+                snowContainer.appendChild(snowflake);
+            }
+        }
+
+        function generateHangingGifts() {
+            const shuffledGifts = [...giftsData].sort(() => Math.random() - 0.5);
+
+            // Координати подарунків (Центрована ялинка)
+            const positions = [
+                { t: 15, l: 50 }, 
+                { t: 28, l: 47 }, { t: 28, l: 53 },
+                { t: 42, l: 44 }, { t: 42, l: 50 }, { t: 42, l: 56 },
+                { t: 56, l: 40 }, { t: 56, l: 60 },
+                { t: 68, l: 36 }, { t: 68, l: 50 }, { t: 68, l: 64 }
+            ];
+
+            for (let i = 0; i < TOTAL_GIFTS_TO_FALL; i++) {
+                const gift = shuffledGifts[i];
+                const pos = positions[i] || { t: 50, l: 50 };
+                
+                const giftEl = document.createElement('div');
+                giftEl.className = 'hanging-gift';
+                giftEl.style.backgroundImage = `url('${gift.url}')`;
+                
+                giftEl.style.top = `${pos.t}%`;
+                giftEl.style.left = `${pos.l}%`;
+                giftEl.style.transform = `translateX(-50%)`;
+                giftEl.style.animationDelay = `${Math.random() * 2}s`;
+
+                treeContainer.appendChild(giftEl);
+            }
+        }
+
+        // --- ЛОГІКА ПАДІННЯ ---
+        function makeGiftFall(giftEl) {
+            const rect = giftEl.getBoundingClientRect();
+            
+            // 1. Переносимо в body і фіксуємо координати
+            document.body.appendChild(giftEl);
+            giftEl.style.position = 'fixed';
+            giftEl.style.left = rect.left + 'px';
+            giftEl.style.top = rect.top + 'px';
+            giftEl.style.width = rect.width + 'px';
+            giftEl.style.height = rect.height + 'px';
+            giftEl.style.transform = 'none';
+            giftEl.style.transition = 'none';
+            giftEl.style.zIndex = '100'; 
+
+            // 2. Змінюємо класи
+            giftEl.classList.remove('hanging-gift');
+            giftEl.classList.add('falling-gift');
+            
+            // 3. Форсуємо перемальовку
+            void giftEl.offsetWidth;
+
+            const boxRect = giftBox.getBoundingClientRect();
+            
+            const targetTop = boxRect.top + 60; 
+            const targetLeft = boxRect.left + (boxRect.width / 2) - 50 + (Math.random() * 40 - 20); 
+
+            // 4. Запускаємо анімацію з невеликою затримкою
+            setTimeout(() => {
+                giftEl.style.transition = 'top 1s ease-in, left 1s linear, transform 1s ease-in';
+                giftEl.style.zIndex = '15'; 
+
+                giftEl.style.top = targetTop + 'px';
+                giftEl.style.left = targetLeft + 'px';
+                giftEl.style.transform = `scale(0.5) rotate(${Math.random() * 180}deg)`;
+            }, 50);
+            
+            // 5. Завершення
+            setTimeout(() => {
+                fallenGiftsCount++;
+                if (fallenGiftsCount >= TOTAL_GIFTS_TO_FALL) {
+                    showFinalScreen();
+                }
+                giftEl.remove(); 
+            }, 1050); 
+        }
+
+        function triggerShake() {
+            // Перевіряємо, чи гра активна
+            if (!isGameActive || isShaking || fallenGiftsCount >= TOTAL_GIFTS_TO_FALL) return; 
+
+            const hangingGifts = document.querySelectorAll('.hanging-gift');
+            if (hangingGifts.length === 0) return;
+
+            isShaking = true;
+            treeContainer.classList.add('is-shaking');
+            statusText.textContent = "Gifts are dropping! 🎁";
+            statusText.style.background = "#00f2ea";
+            
+            const giftsToDropCount = Math.min(hangingGifts.length, 4);
+            
+            for (let i = 0; i < giftsToDropCount; i++) {
+                setTimeout(() => {
+                    const remaining = document.querySelectorAll('.hanging-gift');
+                    if (remaining.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * remaining.length);
+                        makeGiftFall(remaining[randomIndex]);
+                    }
+                }, i * 200); 
+            }
+
+            clearTimeout(shakeTimeout);
+            shakeTimeout = setTimeout(() => {
+                treeContainer.classList.remove('is-shaking');
+                isShaking = false;
+                if (fallenGiftsCount < TOTAL_GIFTS_TO_FALL) {
+                   statusText.textContent = "Shake again! 🔄";
+                   statusText.style.background = "rgba(255,255,255,0.9)";
+                }
+            }, 800);
+        }
+
+        function showFinalScreen() {
+            setTimeout(() => {
+                finalScreen.classList.remove('hidden');
+                statusText.parentElement.style.display = 'none';
+            }, 500);
+        }
+
+        claimBtn.addEventListener('click', () => {
+            const username = document.getElementById('tiktok-input').value;
+            if (username.trim() === "") {
+                alert("Please enter your username!");
+                return;
+            }
+            inputContainer.style.display = 'none';
+            successContainer.style.display = 'flex';
+        });
+
+        function handleMotion(event) {
+            // Якщо гра ще не почалася (кнопка не натиснута + затримка), ігноруємо тряску
+            if (!isGameActive) return;
+
+            const current = event.acceleration; 
+            if (!current) return;
+            if (Math.abs(current.x) > SHAKE_THRESHOLD || 
+                Math.abs(current.y) > SHAKE_THRESHOLD || 
+                Math.abs(current.z) > SHAKE_THRESHOLD) {
+                triggerShake();
+            }
+        }
+
+        function initApp() {
+            startOverlay.style.display = 'none';
+            createSnow();
+            generateHangingGifts();
+
+            // Вмикаємо логіку гри з невеликою затримкою, 
+            // щоб випадковий рух при натисканні кнопки не викликав тряску
+            setTimeout(() => {
+                isGameActive = true;
+            }, 500);
+
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            window.addEventListener('devicemotion', handleMotion, true);
+                        } else {
+                            alert('Sensors denied. Tap screen to play!');
+                            isGameActive = true; // Дозволяємо грати кліками
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                window.addEventListener('devicemotion', handleMotion, true);
+            }
+        }
+
+        startBtn.addEventListener('click', initApp);
+        mainBody.addEventListener('click', triggerShake);
+
+    </script>
+</body>
+</html>
